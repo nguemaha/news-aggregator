@@ -11,6 +11,7 @@ load_dotenv()
 MY_EMAIL = os.getenv("MY_EMAIL")
 APP_PASSWORD = os.getenv("APP_PASSWORD")
 
+#print(MY_EMAIL, APP_PASSWORD)
 
 def send_email(subject: str, body_text: str, body_html: str = None, recipients: list = None):
     if recipients is None:

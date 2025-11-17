@@ -8,6 +8,7 @@ dependencies = [
     "beautifulsoup4>=4.14.2",
     "docling>=2.61.2",
     "feedparser>=6.0.12",
+    "markdown>=3.10",
     "openai>=2.8.0",
     "psycopg2-binary>=2.9.11",
     "python-dotenv>=1.2.1",
