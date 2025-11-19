@@ -45,3 +45,4 @@ class DigestAgent:
         except Exception as e:
             print(f"Error generating digest: {e}")
             return None
+

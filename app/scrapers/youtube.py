@@ -93,8 +93,7 @@ class YouTubeScraper:
     
 if __name__ == "__main__":
     scraper = YouTubeScraper()
-    transcript: Transcript = scraper.get_transcript(video_id="jqd6_bbjhS8")
+    transcript: Transcript = scraper.get_transcript("jqd6_bbjhS8")
     print(transcript.text)
-    channel_videos: List[ChannelVideo] = scraper.scrape_channel(channel_id="UCn8ujwUInbJkBhffxqAPBVQ", hours=200)
-    
+    channel_videos: List[ChannelVideo] = scraper.scrape_channel("UCn8ujwUInbJkBhffxqAPBVQ", hours=200)
     

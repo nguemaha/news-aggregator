@@ -49,3 +49,4 @@ if __name__ == "__main__":
     print(f"Processed: {result['processed']}")
     print(f"Unavailable: {result['unavailable']}")
     print(f"Failed: {result['failed']}")
+

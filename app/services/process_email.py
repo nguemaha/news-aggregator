@@ -1,16 +1,13 @@
 import logging
 from dotenv import load_dotenv
-load_dotenv()
 
-from pathlib import Path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+load_dotenv()
 
 from app.agent.email_agent import EmailAgent, RankedArticleDetail, EmailDigestResponse
 from app.agent.curator_agent import CuratorAgent
 from app.profiles.user_profile import USER_PROFILE
 from app.database.repository import Repository
-from app.services.emails import send_email, digest_to_html
+from app.services.email import send_email, digest_to_html
 
 logging.basicConfig(
     level=logging.INFO,
@@ -105,3 +102,4 @@ if __name__ == "__main__":
         print(f"Articles: {result['articles_count']}")
     else:
         print(f"Error: {result['error']}")
+

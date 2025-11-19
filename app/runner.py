@@ -76,3 +76,4 @@ if __name__ == "__main__":
     print(f"YouTube videos: {len(results['youtube'])}")
     print(f"OpenAI articles: {len(results['openai'])}")
     print(f"Anthropic articles: {len(results['anthropic'])}")
+

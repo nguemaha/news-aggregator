@@ -1,7 +1,7 @@
 USER_PROFILE = {
     "name": "Marcel",
-    "title": "Data Scientist & Researcher",
-    "background": "Experienced AI and Data Scientist with deep interest in practical AI applications, research breakthroughs, and production-ready systems",
+    "title": "AI Data Scientist  & Researcher",
+    "background": "Experienced AI Data Scientist with deep interest in practical AI applications, research breakthroughs, and production-ready systems",
     "interests": [
         "Large Language Models (LLMs) and their applications",
         "Retrieval-Augmented Generation (RAG) systems",
@@ -23,3 +23,4 @@ USER_PROFILE = {
     },
     "expertise_level": "Advanced"
 }
+

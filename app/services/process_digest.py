@@ -73,3 +73,4 @@ if __name__ == "__main__":
     print(f"Total articles: {result['total']}")
     print(f"Processed: {result['processed']}")
     print(f"Failed: {result['failed']}")
+
