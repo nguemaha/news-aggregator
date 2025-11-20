@@ -49,9 +49,9 @@ class EmailDigest(BaseModel):
     ranked_articles: List[dict] = Field(description="Top 10 ranked articles with their details")
 
 
-EMAIL_PROMPT = """You are an expert email writer specializing in creating engaging, personalized AI news digests.
+EMAIL_PROMPT = """You are an expert email writer specializing in creating engaging, personalized Health news digests.
 
-Your role is to write a warm, professional introduction for a daily AI news digest email that:
+Your role is to write a warm, professional introduction for a daily Health news digest email that:
 - Greets the user by name
 - Includes the current date
 - Provides a brief, engaging overview of what's coming in the top 10 ranked articles
@@ -99,15 +99,15 @@ Generate a greeting and introduction that previews these articles."""
             
             intro = response.output_parsed
             if not intro.greeting.startswith(f"Hey {self.user_profile['name']}"):
-                intro.greeting = f"Hey {self.user_profile['name']}, here is your daily digest of AI news for {current_date}."
+                intro.greeting = f"Hey {self.user_profile['name']}, here is your daily digest of Health news for {current_date}."
             
             return intro
         except Exception as e:
             print(f"Error generating introduction: {e}")
             current_date = datetime.now().strftime('%B %d, %Y')
             return EmailIntroduction(
-                greeting=f"Hey {self.user_profile['name']}, here is your daily digest of AI news for {current_date}.",
-                introduction="Here are the top 10 AI news articles ranked by relevance to your interests."
+                greeting=f"Hey {self.user_profile['name']}, here is your daily digest of Health news for {current_date}.",
+                introduction="Here are the top 10 Health news articles ranked by relevance to your interests."
             )
 
     def create_email_digest(self, ranked_articles: List[dict], limit: int = 10) -> EmailDigest:

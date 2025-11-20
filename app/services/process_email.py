@@ -2,12 +2,18 @@ import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from app.agent.email_agent import EmailAgent, RankedArticleDetail, EmailDigestResponse
 from app.agent.curator_agent import CuratorAgent
 from app.profiles.user_profile import USER_PROFILE
 from app.database.repository import Repository
-from app.services.email import send_email, digest_to_html
+from app.services.emails import send_email, digest_to_html
+
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -72,7 +78,7 @@ def send_digest_email(hours: int = 24, top_n: int = 10) -> dict:
         markdown_content = result.to_markdown()
         html_content = digest_to_html(result)
         
-        subject = f"Daily AI News Digest - {result.introduction.greeting.split('for ')[-1] if 'for ' in result.introduction.greeting else 'Today'}"
+        subject = f"Daily Health News Digest - {result.introduction.greeting.split('for ')[-1] if 'for ' in result.introduction.greeting else 'Today'}"
         
         send_email(
             subject=subject,
