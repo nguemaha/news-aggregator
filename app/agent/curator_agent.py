@@ -18,12 +18,20 @@ class RankedDigestList(BaseModel):
     articles: List[RankedArticle] = Field(description="List of ranked articles")
 
 
-CURATOR_PROMPT = """You are an expert AI news curator specializing in personalized content ranking for AI professionals.
+CURATOR_PROMPT = """You are an expert news curator specializing in personalized content ranking for professionals.
 
-Your role is to analyze and rank AI-related news articles, research papers, and video content based on a user's specific profile, interests, and background.
+Your role is to analyze and rank news articles, research papers, based on a user's specific profile, interests, and background.
+
+Article Type Reference:
+- "who" = World Health Organization (WHO) - Healthcare, global health, public health policy, health regulations
+- "openai" = OpenAI blog - AI research, product announcements, technical AI content
+- "anthropic" = Anthropic blog - AI safety, AI research, technical AI content
+- "youtube" = YouTube videos - Various content types (check title/summary for topic)
+
+IMPORTANT: When the user has healthcare interests (e.g., "Global Health and Health policy", "Healthcare Quality and Safety"), articles with type "who" should be considered HIGHLY RELEVANT as they are directly from the World Health Organization and cover healthcare topics.
 
 Ranking Criteria:
-1. Relevance to user's stated interests and background
+1. Relevance to user's stated interests and background (PRIMARY FACTOR)
 2. Technical depth and practical value
 3. Novelty and significance of the content
 4. Alignment with user's expertise level
@@ -68,12 +76,22 @@ Preferences:
         if not digests:
             return []
         
+        def format_article_type(article_type: str) -> str:
+            """Format article type with full name for clarity"""
+            type_map = {
+                "who": "who (World Health Organization - Healthcare)",
+                "openai": "openai (OpenAI Blog - AI)",
+                "anthropic": "anthropic (Anthropic Blog - AI)",
+                "youtube": "youtube (YouTube Video)"
+            }
+            return type_map.get(article_type, article_type)
+        
         digest_list = "\n\n".join([
-            f"ID: {d['id']}\nTitle: {d['title']}\nSummary: {d['summary']}\nType: {d['article_type']}"
+            f"ID: {d['id']}\nTitle: {d['title']}\nSummary: {d['summary']}\nType: {format_article_type(d['article_type'])}"
             for d in digests
         ])
         
-        user_prompt = f"""Rank these {len(digests)} AI news digests based on the user profile:
+        user_prompt = f"""Rank these {len(digests)} news digests based on the user profile:
 
 {digest_list}
 

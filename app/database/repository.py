@@ -196,6 +196,22 @@ class Repository:
                     "published_at": article.published_at
                 })
         
+        who_articles = self.session.query(WHOArticle).filter(
+            WHOArticle.description.isnot(None),
+            WHOArticle.description != ""
+        ).all()
+        for article in who_articles:
+            key = f"who:{article.guid}"
+            if key not in seen_ids:
+                articles.append({
+                    "type": "who",
+                    "id": article.guid,
+                    "title": article.title,
+                    "url": article.url,
+                    "content": article.description or "",
+                    "published_at": article.published_at
+                })
+        
         if limit:
             articles = articles[:limit]
         

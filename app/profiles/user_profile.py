@@ -1,18 +1,12 @@
 USER_PROFILE = {
     "name": "Marcel",
-    "title": "AI Data Scientist  & Researcher",
-    "background": "Experienced AI Data Scientist with deep interest in practical AI applications, research breakthroughs, and production-ready systems",
+    "title": "Healthcare Data Scientist  & Researcher",
+    "background": "Experienced Data Scientist with deep interest in practical AI applications in healthcare",
     "interests": [
-        "Large Language Models (LLMs) and their applications",
-        "Retrieval-Augmented Generation (RAG) systems",
-        "AI agent architectures and frameworks",
-        "Multimodal AI and vision-language models",
-        "AI safety and alignment research",
-        "Production AI systems and MLOps",
-        "Real-world AI applications and case studies",
-        "Technical tutorials and implementation guides",
-        "Research papers with practical implications",
-        "AI infrastructure and scaling challenges"
+        "Global Health and Health policy",
+        "AI applications in healthcare",
+        "Healthcare Quality and Safety",
+        "AI safety and compliance/regulations"
     ],
     "preferences": {
         "prefer_practical": True,
