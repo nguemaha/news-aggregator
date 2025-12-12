@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
-from .models import YouTubeVideo, OpenAIArticle, AnthropicArticle, Digest
+from .models import YouTubeVideo, OpenAIArticle, AnthropicArticle, WHOArticle, Digest
 from .connection import get_session
 
 
@@ -200,6 +200,66 @@ class Repository:
             articles = articles[:limit]
         
         return articles
+    
+    # ============================================================================
+    # WHO Article Functions
+    # ============================================================================
+    
+    def create_who_article(self, guid: str, title: str, url: str, published_at: datetime,
+                          description: str = "", category: Optional[str] = None) -> Optional[WHOArticle]:
+        existing = self.session.query(WHOArticle).filter_by(guid=guid).first()
+        if existing:
+            return None
+        article = WHOArticle(
+            guid=guid,
+            title=title,
+            url=url,
+            published_at=published_at,
+            description=description,
+            category=category
+        )
+        self.session.add(article)
+        self.session.commit()
+        return article
+    
+    def bulk_create_who_articles(self, articles: List[dict]) -> int:
+        new_articles = []
+        for a in articles:
+            existing = self.session.query(WHOArticle).filter_by(guid=a["guid"]).first()
+            if not existing:
+                new_articles.append(WHOArticle(
+                    guid=a["guid"],
+                    title=a["title"],
+                    url=a["url"],
+                    published_at=a["published_at"],
+                    description=a.get("description", ""),
+                    category=a.get("category")
+                ))
+        if new_articles:
+            self.session.add_all(new_articles)
+            self.session.commit()
+        return len(new_articles)
+    
+    def get_who_articles(self, limit: Optional[int] = None, hours: Optional[int] = None) -> List[WHOArticle]:
+        query = self.session.query(WHOArticle)
+        
+        if hours:
+            cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+            query = query.filter(WHOArticle.published_at >= cutoff_time)
+        
+        query = query.order_by(WHOArticle.published_at.desc())
+        
+        if limit:
+            query = query.limit(limit)
+        
+        return query.all()
+    
+    def get_who_article_by_id(self, guid: str) -> Optional[WHOArticle]:
+        return self.session.query(WHOArticle).filter_by(guid=guid).first()
+    
+    # ============================================================================
+    # Digest Functions
+    # ============================================================================
     
     def create_digest(self, article_type: str, article_id: str, url: str, title: str, summary: str, published_at: Optional[datetime] = None) -> Optional[Digest]:
         digest_id = f"{article_type}:{article_id}"

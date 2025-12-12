@@ -5,6 +5,18 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
+class WHOArticle(Base):
+    __tablename__ = "who_news"
+
+    guid = Column(String, primary_key=True)
+    title = Column(String, nullable=False)
+    url = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    published_at = Column(DateTime, nullable=False)
+    category = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 
 class YouTubeVideo(Base):
     __tablename__ = "youtube_videos"

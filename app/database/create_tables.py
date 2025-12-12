@@ -1,3 +1,7 @@
+"""
+  This script create the tables, used only for local development
+"""
+
 import sys
 from pathlib import Path
 
