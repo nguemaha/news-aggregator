@@ -56,7 +56,7 @@ def run_daily_pipeline(hours: int = 24, top_n: int = 10) -> dict:
         
         
         logger.info("\n[2/3] Creating digests for articles...")
-        digest_result = process_digests()
+        digest_result = process_digests(hours=hours)
         results["digests"] = digest_result
         logger.info(f"✓ Created {digest_result['processed']} digests "
                     f"({digest_result['failed']} failed out of {digest_result['total']} total)")
