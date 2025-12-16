@@ -12,17 +12,20 @@ from app.scrapers.who import WHOScraper, WHOArticle
 from app.database.repository import Repository
 
 
-def run_scrapers(hours: int = 24) -> dict:
-    youtube_scraper = YouTubeScraper()
-    openai_scraper = OpenAIScraper()
-    anthropic_scraper = AnthropicScraper()
-    who_scraper = WHOScraper()
-    repo = Repository()
+def scrape_youtube(hours: int, repo: Repository) -> List[ChannelVideo]:
+    """
+    Scrape YouTube videos from configured channels and save to database.
     
+    :param hours: Number of hours to look back for videos
+    :param repo: Repository instance for database operations
+    :return: List of ChannelVideo objects that were scraped
+    """
+    scraper = YouTubeScraper()
     youtube_videos: List[ChannelVideo] = []
     video_dicts = []
+    
     for channel_id in YOUTUBE_CHANNELS:
-        videos = youtube_scraper.get_latest_videos(channel_id, hours=hours)
+        videos = scraper.get_latest_videos(channel_id, hours=hours)
         youtube_videos.extend(videos)
         video_dicts.extend([
             {
@@ -37,14 +40,24 @@ def run_scrapers(hours: int = 24) -> dict:
             for v in videos
         ])
     
-    openai_articles: List[OpenAIArticle] = openai_scraper.get_articles(hours=hours)
-    anthropic_articles: List[AnthropicArticle] = anthropic_scraper.get_articles(hours=hours)
-    who_articles: List[WHOArticle] = who_scraper.scrape_all(hours=hours)
-    
     if video_dicts:
         repo.bulk_create_youtube_videos(video_dicts)
     
-    if openai_articles:
+    return youtube_videos
+
+
+def scrape_openai(hours: int, repo: Repository) -> List[OpenAIArticle]:
+    """
+    Scrape OpenAI articles and save to database.
+    
+    :param hours: Number of hours to look back for articles
+    :param repo: Repository instance for database operations
+    :return: List of OpenAIArticle objects that were scraped
+    """
+    scraper = OpenAIScraper()
+    articles = scraper.get_articles(hours=hours)
+    
+    if articles:
         article_dicts = [
             {
                 "guid": a.guid,
@@ -54,11 +67,25 @@ def run_scrapers(hours: int = 24) -> dict:
                 "description": a.description,
                 "category": a.category
             }
-            for a in openai_articles
+            for a in articles
         ]
         repo.bulk_create_openai_articles(article_dicts)
     
-    if anthropic_articles:
+    return articles
+
+
+def scrape_anthropic(hours: int, repo: Repository) -> List[AnthropicArticle]:
+    """
+    Scrape Anthropic articles and save to database.
+    
+    :param hours: Number of hours to look back for articles
+    :param repo: Repository instance for database operations
+    :return: List of AnthropicArticle objects that were scraped
+    """
+    scraper = AnthropicScraper()
+    articles = scraper.get_articles(hours=hours)
+    
+    if articles:
         article_dicts = [
             {
                 "guid": a.guid,
@@ -68,23 +95,62 @@ def run_scrapers(hours: int = 24) -> dict:
                 "description": a.description,
                 "category": a.category
             }
-            for a in anthropic_articles
+            for a in articles
         ]
         repo.bulk_create_anthropic_articles(article_dicts)
     
-    if who_articles:
-        article_dicts = [
-            {
-                "guid": a.guid,
-                "title": a.title,
-                "url": a.url,
-                "published_at": a.published_at,
-                "description": a.description,
-                "category": a.category
-            }
-            for a in who_articles
-        ]
-        repo.bulk_create_who_articles(article_dicts)
+    return articles
+
+
+def scrape_who(hours: int, repo: Repository) -> List[WHOArticle]:
+    """
+    Scrape WHO articles and save to database.
+    Ensures Selenium WebDriver is properly closed after scraping.
+    
+    :param hours: Number of hours to look back for articles
+    :param repo: Repository instance for database operations
+    :return: List of WHOArticle objects that were scraped
+    """
+    scraper = WHOScraper()
+    articles: List[WHOArticle] = []
+    
+    try:
+        articles = scraper.scrape_all(hours=hours)
+        
+        if articles:
+            article_dicts = [
+                {
+                    "guid": a.guid,
+                    "title": a.title,
+                    "url": a.url,
+                    "published_at": a.published_at,
+                    "description": a.description,
+                    "category": a.category
+                }
+                for a in articles
+            ]
+            repo.bulk_create_who_articles(article_dicts)
+    finally:
+        # Ensure the Selenium WebDriver is always cleaned up
+        scraper.close()
+    
+    return articles
+
+
+def run_scrapers(hours: int = 24) -> dict:
+    """
+    Orchestrate scraping from all configured sources and save results to database.
+    
+    :param hours: Number of hours to look back for content (default: 24)
+    :return: Dictionary with keys 'youtube', 'openai', 'anthropic', 'who' containing
+             lists of scraped content objects
+    """
+    repo = Repository()
+    
+    youtube_videos = scrape_youtube(hours=hours, repo=repo)
+    openai_articles = scrape_openai(hours=hours, repo=repo)
+    anthropic_articles = scrape_anthropic(hours=hours, repo=repo)
+    who_articles = scrape_who(hours=hours, repo=repo)
     
     return {
         "youtube": youtube_videos,
