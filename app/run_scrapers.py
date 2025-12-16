@@ -1,0 +1,104 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from typing import List
+from app.config import YOUTUBE_CHANNELS
+from app.scrapers.youtube import YouTubeScraper, ChannelVideo
+from app.scrapers.openai import OpenAIScraper, OpenAIArticle
+from app.scrapers.anthropic import AnthropicScraper, AnthropicArticle
+from app.scrapers.who import WHOScraper, WHOArticle
+from app.database.repository import Repository
+
+
+def run_scrapers(hours: int = 24) -> dict:
+    youtube_scraper = YouTubeScraper()
+    openai_scraper = OpenAIScraper()
+    anthropic_scraper = AnthropicScraper()
+    who_scraper = WHOScraper()
+    repo = Repository()
+    
+    youtube_videos: List[ChannelVideo] = []
+    video_dicts = []
+    for channel_id in YOUTUBE_CHANNELS:
+        videos = youtube_scraper.get_latest_videos(channel_id, hours=hours)
+        youtube_videos.extend(videos)
+        video_dicts.extend([
+            {
+                "video_id": v.video_id,
+                "title": v.title,
+                "url": v.url,
+                "channel_id": channel_id,
+                "published_at": v.published_at,
+                "description": v.description,
+                "transcript": v.transcript
+            }
+            for v in videos
+        ])
+    
+    openai_articles: List[OpenAIArticle] = openai_scraper.get_articles(hours=hours)
+    anthropic_articles: List[AnthropicArticle] = anthropic_scraper.get_articles(hours=hours)
+    who_articles: List[WHOArticle] = who_scraper.scrape_all(hours=hours)
+    
+    if video_dicts:
+        repo.bulk_create_youtube_videos(video_dicts)
+    
+    if openai_articles:
+        article_dicts = [
+            {
+                "guid": a.guid,
+                "title": a.title,
+                "url": a.url,
+                "published_at": a.published_at,
+                "description": a.description,
+                "category": a.category
+            }
+            for a in openai_articles
+        ]
+        repo.bulk_create_openai_articles(article_dicts)
+    
+    if anthropic_articles:
+        article_dicts = [
+            {
+                "guid": a.guid,
+                "title": a.title,
+                "url": a.url,
+                "published_at": a.published_at,
+                "description": a.description,
+                "category": a.category
+            }
+            for a in anthropic_articles
+        ]
+        repo.bulk_create_anthropic_articles(article_dicts)
+    
+    if who_articles:
+        article_dicts = [
+            {
+                "guid": a.guid,
+                "title": a.title,
+                "url": a.url,
+                "published_at": a.published_at,
+                "description": a.description,
+                "category": a.category
+            }
+            for a in who_articles
+        ]
+        repo.bulk_create_who_articles(article_dicts)
+    
+    return {
+        "youtube": youtube_videos,
+        "openai": openai_articles,
+        "anthropic": anthropic_articles,
+        "who": who_articles,
+    }
+
+
+if __name__ == "__main__":
+    results = run_scrapers(hours=72)
+    print(f"YouTube videos: {len(results['youtube'])}")
+    print(f"OpenAI articles: {len(results['openai'])}")
+    print(f"Anthropic articles: {len(results['anthropic'])}")
+    print(f"WHO articles: {len(results['who'])}")
+
+

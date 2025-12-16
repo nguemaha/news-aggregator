@@ -1,8 +1,8 @@
-from app.daily_runner import run_daily_pipeline
+from app.runner import run_pipeline
 
 
 def main(hours: int = 24, top_n: int = 10):
-    return run_daily_pipeline(hours=hours, top_n=top_n)
+    return run_pipeline(hours=hours, top_n=top_n)
 
 
 if __name__ == "__main__":
